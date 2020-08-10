@@ -1,6 +1,13 @@
 ---
-- name: Cambio de period para metricbeat
+- name: Instalacion de metricbeat en Centos/RHLE
   hosts: CentOS
+## aqui mensionar el usuario con el que se va  aconnectar poque por defult pone el root
+  remote_user: ymedinas
+## become para que evele sus privileos a a root cuando ejecute
+#### Si el el usuario mensionado require contrasenia al momento de hacer sudo su - se
+#### deberia usar asi:
+#### ansible-playbook .//install_metric_local_dev.yml --extra-vars "ansible_sudo_pass=Li***8"
+  become: yes
 #  remote_user: alberto
   tasks:
     - name: Copiar el paquete Metricbeat
@@ -34,3 +41,67 @@
        daemon_reload: yes
        name: metricbeat
        
+       
+###Ubuntu
+  hosts: Ubuntu
+## aqui mensionar el usuario con el que se va  aconnectar poque por defult pone el root
+  remote_user: ymedinas
+  become: yes
+  tasks:
+    - name: Copiar el paquete Metricbeat
+      copy:
+        src: /root/metricbeat-7.8.0-amd64.deb
+        dest: /tmp/metric_installer.deb
+        backup: yes
+
+    - name: Instalar el deb de Metricbeat
+      command: dpkg -i /tmp/metric_installer.deb
+      register: install_result
+
+    - debug:
+        msg: "Resultados de la instalacion"
+    - debug:
+        var: install_result
+    - debug:
+        msg: 
+        - "Resultado fallido ?"
+    - debug:
+        var: install_result.failed
+    - debug:
+        msg: '{{ install_result.stderr }}'
+    - debug:
+        msg: '{{ install_result.stderr_lines }}'
+    - debug:
+        msg: '{{ install_result.stdout }}'
+        
+    - name: Activar el modulo de system de Metricbeat
+      command: metricbeat modules enable system
+
+    - name: Configuracion del modulo system
+      copy:
+        src: /root/ansible_dev_rn/elastic_cnf_file/system.yml_period_3m
+        dest: /etc/metricbeat/modules.d/system.yml
+        backup: yes
+
+    - name: Configuracion coneccion Metricbeat
+      copy:
+        src: /root/ansible_dev_rn/elastic_cnf_file/metricbeat.yml_local_dev
+        dest: /etc/metricbeat/metricbeat.yml
+        backup: yes
+
+    - name: Iniciar Metricbeat
+      systemd:
+       state: started
+       daemon_reload: yes
+       name: metricbeat
+
+
+
+
+
+
+
+
+
+
+ 
