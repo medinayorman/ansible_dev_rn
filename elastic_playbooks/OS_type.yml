@@ -1,0 +1,7 @@
+---
+- name: Instalacion de metricbeat en Centos/RHLE
+  hosts: all
+  remote_user: ymedinas
+  tasks:
+    - name: Consultar el OS
+      shell: cat /etc/*release

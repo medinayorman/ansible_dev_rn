@@ -1,0 +1,32 @@
+---
+- name: Agrgar cambios a metricfile
+  hosts: all
+  remote_user: ymedinas
+  become: yes
+  tasks:
+    - name: Detener el servicio de metricbeat
+      systemd:
+       name: metricbeat
+       state: stopped
+      register: find_output
+
+    - debug:
+        var: find_output.status.Result
+
+    - name: Copiar el nuevo archivo de configuracion
+      copy:
+        src: /root/ansible_dev_rn/metricbeat.yml_hites_prod_linux_standard
+        dest: /etc/metricbeat/metricbeat.yml
+        backup: yes
+
+    - name: Iniciar Metricbeat
+      systemd:
+       state: started
+       name: metricbeat
+
+    - name: Traer el status
+      command: systemctl status metricbeat
+      register: reg_status
+
+    - debug:
+        var: reg_status

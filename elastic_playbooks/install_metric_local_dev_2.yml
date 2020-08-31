@@ -1,0 +1,45 @@
+---
+- name: Instalacion de metricbeat en Centos/RHLE
+  hosts: centos
+  remote_user: ymedinas
+  become: yes
+#  remote_user: alberto
+  tasks:
+    - name: Copiar el paquete Metricbeat
+      copy:
+        src: /root/metricbeat-7.8.0-x86_64.rpm
+        dest: /tmp/metric_install.rpm
+        backup: yes
+
+    - name: Instalar el rpm de Metricbeat
+      command: rpm -i /tmp/metric_install.rpm
+      register: mymotd
+
+    - name: Activar el modulo de system de Metricbeat
+      command: metricbeat modules enable system
+
+    - name: Configuracion del modulo system
+      copy:
+        src: /root/ansible_dev_rn/elastic_cnf_file/system.yml_period_3m
+        dest: /etc/metricbeat/modules.d/system.yml
+        backup: yes
+
+    - name: Configuracion coneccion Metricbeat
+      copy:
+        src: /root/ansible_dev_rn/elastic_cnf_file/metricbeat.yml_local_dev
+        dest: /etc/metricbeat/metricbeat.yml
+        backup: yes
+
+    - name: Iniciar Metricbeat
+      systemd:
+       state: started
+       daemon_reload: yes
+       name: metricbeat
+
+
+
+
+
+
+
+ 
