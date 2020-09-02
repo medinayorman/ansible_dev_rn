@@ -12,7 +12,7 @@ setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}-standard-linux"
 setup.ilm.pattern: "{now/M{yyyy.MM.dd}}-000001"
 setup.ilm.policy_name: "metricbeat-standard-linux"
 tags: ["standard","linux","ambiente produccion","Hites"]
-fields: {orion_profile_mointoring: "empaty"}
+fields: {orion_profile_monitoring: "empaty"}
 
 # =========================== Modules configuration ============================
 
